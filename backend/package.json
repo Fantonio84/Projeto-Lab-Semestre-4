@@ -1,0 +1,36 @@
+{
+  "name": "projeto-lab-semestre-4",
+  "version": "1.0.0",
+  "description": "Repositorio para realização do projeto da disciplina Laboratorio de desenvolvimento WEB 3 do curso de desenvolvimento de software multiplatadorma da Fatec Atibaia.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fantonio84/Projeto-Lab-Semestre-4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Fantonio84/Projeto-Lab-Semestre-4/issues"
+  },
+  "homepage": "https://github.com/Fantonio84/Projeto-Lab-Semestre-4#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.4.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.2"
+  }
+}
