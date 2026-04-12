@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Aqui você conecta a rota que criamos acima
+// conexão com as rotas 
 app.use('/api/voluntarios', voluntarioRoutes);
 
 export default app;

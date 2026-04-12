@@ -6,9 +6,9 @@ import {
   LogOut, Shield, ChevronRight, Stethoscope
 } from 'lucide-react';
 
-// ==========================================
+
 // INTERFACES (TIPAGEM DO TYPESCRIPT)
-// ==========================================
+
 interface User {
   name: string;
   email: string;
@@ -41,9 +41,9 @@ interface KpiCardProps {
   color: string;
 }
 
-// ==========================================
+
 // CONFIGURAÇÕES E IA (GEMINI API)
-// ==========================================
+
 const apiKey = "AIzaSyAn4XQON7UUYazBhbZv6i1Off2TIYC0S8s";
 
 const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai', text: string }[]) => {
@@ -66,7 +66,7 @@ const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai'
     safetySettings: [
       {
         category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_ONLY_HIGH" // Menos restritivo para evitar bloqueios bobos
+        threshold: "BLOCK_ONLY_HIGH" 
       },
       {
         category: "HARM_CATEGORY_HATE_SPEECH",
@@ -110,9 +110,9 @@ const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai'
   }
 };
 
-// ==========================================
-// ÍCONE CUSTOMIZADO: DENTE
-// ==========================================
+
+// ÍCONE CUSTOMIZADO: DENTE (precisa melhorar ainda o desenho do dente)
+
 interface CustomIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
 }
@@ -135,9 +135,9 @@ const Tooth = ({ size = 24, className = "", ...props }: CustomIconProps) => (
   </svg>
 );
 
-// ==========================================
+
 // COMPONENTES PRINCIPAIS
-// ==========================================
+
 
 export default function App() {
   const [view, setView] = useState<'landing' | 'dashboard'>('landing');
@@ -188,9 +188,9 @@ export default function App() {
   );
 }
 
-// ==========================================
+
 // NAVBAR & FOOTER
-// ==========================================
+
 
 function Navbar({ user, onLoginClick, onLogout, goToDashboard, goToLanding, currentView }: NavbarProps) {
   const scrollTo = (id: string) => {
@@ -282,9 +282,9 @@ function Footer() {
   );
 }
 
-// ==========================================
+
 // SEÇÕES DA LANDING PAGE
-// ==========================================
+
 
 function HeroSection() {
   return (
@@ -544,7 +544,7 @@ function DonationSection() {
             </button>
           </div>
 
-          {/* ÁREA DO QR CODE COM A IMAGEM DEFINITIVA */}
+          {/* ÁREA DO QR CODE COM A IMAGEM */}
           <div className="relative z-10 bg-white p-4 rounded-2xl shadow-inner border border-slate-100 inline-block mb-4">
             <img
               src="/qr-code-pix.png"
@@ -645,7 +645,7 @@ function ChatbotWidget() {
       // 3. Prepara o contexto (as últimas 4 mensagens para a IA não se perder)
       const context = messages.slice(-4); 
 
-      // 4. Chama a função da API (certifique-se que ela está definida no seu arquivo)
+      // 4. Chama a função da API 
       const aiResponse = await generateAIResponse(userText, context);
 
       // 5. Adiciona a resposta da IA na tela
