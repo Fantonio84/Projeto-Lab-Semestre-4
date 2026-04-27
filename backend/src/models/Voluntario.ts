@@ -24,9 +24,9 @@ const VoluntarioSchema: Schema = new Schema(
       required: true 
     },
     cro: { 
-      type: String, 
-      required: true 
-    }
+    type: String, 
+    required: false 
+}
   },
   {
     // Isso cria automaticamente os campos de "Data de Criação" e "Data de Atualização"

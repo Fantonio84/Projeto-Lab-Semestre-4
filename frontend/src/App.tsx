@@ -7,7 +7,9 @@ import {
 } from 'lucide-react';
 
 
+// ============================================================
 // INTERFACES (TIPAGEM DO TYPESCRIPT)
+// ============================================================
 
 interface User {
   name: string;
@@ -42,20 +44,20 @@ interface KpiCardProps {
 }
 
 
+// ============================================================
 // CONFIGURAÇÕES E IA (GEMINI API)
+// ============================================================
 
 const apiKey = "AIzaSyAn4XQON7UUYazBhbZv6i1Off2TIYC0S8s";
 
 const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai', text: string }[]) => {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-  // Formata o histórico para o padrão que o Gemini espera (user -> user, ai -> model)
   const contents = history.map(msg => ({
     role: msg.role === 'ai' ? 'model' : 'user',
     parts: [{ text: msg.text }]
   }));
 
-  // Adiciona a pergunta atual do usuário
   contents.push({
     role: 'user',
     parts: [{ text: `Instrução: Você é o assistente do Projeto PI Odonto em Atibaia. Responda de forma curta e amigável. Pergunta: ${prompt}` }]
@@ -64,14 +66,8 @@ const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai'
   const payload = {
     contents: contents,
     safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_ONLY_HIGH" 
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_ONLY_HIGH"
-      }
+      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" }
     ],
     generationConfig: {
       maxOutputTokens: 300,
@@ -93,17 +89,16 @@ const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai'
       return `Erro (${response.status}): Não consegui acessar a inteligência agora.`;
     }
 
-    // Verifica se há resposta e se não foi bloqueada por filtros
     if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
       return data.candidates[0].content.parts[0].text;
-    } 
-    
+    }
+
     if (data.candidates?.[0]?.finishReason === "SAFETY") {
       return "Desculpe, não posso responder a isso por motivos de segurança.";
     }
 
     return "Entendi a pergunta, mas tive um problema ao gerar a resposta. Pode tentar de novo?";
-    
+
   } catch (err) {
     console.error("Erro de conexão:", err);
     return "Estou com dificuldades de conexão. Verifique sua internet.";
@@ -111,7 +106,9 @@ const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai'
 };
 
 
-// ÍCONE CUSTOMIZADO: DENTE (precisa melhorar ainda o desenho do dente)
+// ============================================================
+// ÍCONE CUSTOMIZADO: DENTE
+// ============================================================
 
 interface CustomIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
@@ -136,8 +133,9 @@ const Tooth = ({ size = 24, className = "", ...props }: CustomIconProps) => (
 );
 
 
-// COMPONENTES PRINCIPAIS
-
+// ============================================================
+// COMPONENTE RAIZ
+// ============================================================
 
 export default function App() {
   const [view, setView] = useState<'landing' | 'dashboard'>('landing');
@@ -189,8 +187,9 @@ export default function App() {
 }
 
 
+// ============================================================
 // NAVBAR & FOOTER
-
+// ============================================================
 
 function Navbar({ user, onLoginClick, onLogout, goToDashboard, goToLanding, currentView }: NavbarProps) {
   const scrollTo = (id: string) => {
@@ -283,8 +282,9 @@ function Footer() {
 }
 
 
+// ============================================================
 // SEÇÕES DA LANDING PAGE
-
+// ============================================================
 
 function HeroSection() {
   return (
@@ -300,30 +300,23 @@ function HeroSection() {
           <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
             O Projeto Odonto, da Casa Espírita Trabalhadores de Jesus, une profissionais dedicados e tecnologia para oferecer tratamento odontológico gratuito e humanizado.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* BOTÃO: QUERO SER VOLUNTÁRIO (Destaque Ampliado) */}
-            <a 
-              href="#voluntarios" 
-              className="bg-teal-600 text-white px-8 py-4 rounded-full font-bold text-center flex items-center justify-center gap-2 shadow-lg shadow-teal-600/20 
-                         transition-all duration-300 
-                         hover:bg-teal-700 hover:scale-105 hover:shadow-xl hover:shadow-teal-600/40"
+            <a
+              href="#voluntarios"
+              className="bg-teal-600 text-white px-8 py-4 rounded-full font-bold text-center flex items-center justify-center gap-2 shadow-lg shadow-teal-600/20 transition-all duration-300 hover:bg-teal-700 hover:scale-105 hover:shadow-xl hover:shadow-teal-600/40"
             >
               Quero ser Voluntário <ChevronRight size={20} />
             </a>
-
-            {/* BOTÃO: FAZER UMA DOAÇÃO (Destaque Ampliado) */}
-            <a 
-              href="#doacoes" 
-              className="bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-full font-bold text-center flex items-center justify-center gap-2 
-                         transition-all duration-300 
-                         hover:bg-slate-50 hover:scale-105 hover:border-teal-300 hover:shadow-xl hover:shadow-slate-200"
+            <a
+              href="#doacoes"
+              className="bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-full font-bold text-center flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 hover:scale-105 hover:border-teal-300 hover:shadow-xl hover:shadow-slate-200"
             >
               Fazer uma Doação <Heart size={20} className="text-rose-500" />
             </a>
           </div>
         </div>
-        
+
         <div className="flex-1 relative">
           <div className="absolute inset-0 bg-teal-200 rounded-[3rem] transform rotate-3 scale-105 -z-10 opacity-50 blur-lg"></div>
           <img
@@ -341,7 +334,7 @@ function HeroSection() {
 function FeaturesSection() {
   const features = [
     { icon: Users, title: "Atendimento Humanizado", desc: "Oferecemos cuidado com foco integral no bem‑estar físico, emocional e social do paciente, promovendo acolhimento, empatia e respeito em cada etapa do atendimento." },
-    { icon: Tooth, title: "Equipamentos Modestos", desc: "Contamos com equipamentos simples, mas funcionais, cedidos por um voluntário da instituição. Todos estão em excelentes condições de uso e preservação, o que nos permite oferecer este serviço às crianças carentes da comunidade com qualidade e segurança." }, // <--- Alterado para Tooth
+    { icon: Tooth, title: "Equipamentos Modestos", desc: "Contamos com equipamentos simples, mas funcionais, cedidos por um voluntário da instituição. Todos estão em excelentes condições de uso e preservação, o que nos permite oferecer este serviço às crianças carentes da comunidade com qualidade e segurança." },
     { icon: Shield, title: "Transparência Total", desc: "Gestão rigorosa e responsável dos recursos e das doações recebidas, com acompanhamento claro e prestação de contas completa para toda a comunidade." }
   ];
 
@@ -356,7 +349,7 @@ function FeaturesSection() {
           {features.map((f, i) => (
             <div key={i} className="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl transition-shadow group">
               <div className="w-14 h-14 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                <f.icon size={28} /> {/* O componente renderizará o ícone Tooth aqui automaticamente */}
+                <f.icon size={28} />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3">{f.title}</h3>
               <p className="text-slate-600 leading-relaxed">{f.desc}</p>
@@ -368,8 +361,13 @@ function FeaturesSection() {
   );
 }
 
+// ============================================================
+// SEÇÃO DE VOLUNTÁRIOS — COM TOGGLE (ALTERADO)
+// ============================================================
+
 function VolunteerSection() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', cro: '' });
+  const [tab, setTab] = useState<'casa' | 'dentista'>('casa');
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -377,136 +375,234 @@ function VolunteerSection() {
 
   const validate = () => {
     const newErrs: Record<string, string> = {};
-    if (!formData.name) newErrs.name = "Nome é obrigatório.";
+    if (!formData.name.trim()) newErrs.name = "Nome é obrigatório.";
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrs.email = "Email inválido.";
-    if (!formData.cro) newErrs.cro = "Número do conselho (CRO) é obrigatório.";
-    if (!file) newErrs.file = "O anexo do currículo é obrigatório (Upload).";
+    if (!formData.phone.trim()) newErrs.phone = "Telefone é obrigatório.";
     setErrors(newErrs);
     return Object.keys(newErrs).length === 0;
   };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
-
     setStatus('loading');
 
     try {
-      // Ligação com o Backend na porta 5000 (com a /api)
       const response = await fetch('http://localhost:5000/api/voluntarios', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nome: formData.name,
           telefone: formData.phone,
           email: formData.email,
-          cro: formData.cro
         })
       });
 
       if (response.ok) {
-        // Se o backend confirmou que salvou no MongoDB
         setStatus('success');
-        setFormData({ name: '', email: '', phone: '', cro: '' });
+        setFormData({ name: '', email: '', phone: '' });
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
         setStatus('error');
-        alert("Ops! O servidor recusou os dados. Verifique o terminal do backend.");
       }
-
     } catch (error) {
       console.error("Erro na comunicação com o backend:", error);
       setStatus('error');
-      alert("Erro de conexão. O servidor backend não respondeu.");
     }
   };
+
+  const beneficiosCasa = ['Horários flexíveis', 'Proatividade', 'Amor ao próximo'];
+  const beneficiosDentista = ['Horários flexíveis de atendimento', 'Sala de consulta equipada', 'Certificado de horas voluntárias'];
+  const beneficios = tab === 'casa' ? beneficiosCasa : beneficiosDentista;
 
   return (
     <section id="voluntarios" className="py-24 bg-teal-900 text-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-16 relative z-10 items-center">
+
+        {/* LADO ESQUERDO */}
         <div>
-          <span className="text-teal-300 font-semibold tracking-wider text-sm uppercase mb-2 block">Faça parte da equipe</span>
+          <span className="text-teal-300 font-semibold tracking-wider text-sm uppercase mb-2 block">
+            Faça parte da equipe
+          </span>
           <h2 className="text-4xl font-bold mb-6">Traga seu talento para nossa causa</h2>
           <p className="text-teal-100 mb-8 leading-relaxed text-lg">
-            Buscamos dentistas, auxiliares e estudantes que desejam doar parte do seu tempo para transformar a saúde bucal da comunidade carente de Atibaia.
+            {tab === 'casa'
+              ? 'Buscamos voluntários que estejam dispostos a ajudar a casa com os desafios do dia a dia.'
+              : 'Buscamos dentistas, auxiliares e estudantes que desejam doar parte do seu tempo para transformar a saúde bucal da comunidade carente de Atibaia.'}
           </p>
-          <ul className="space-y-4">
-            {['Horários flexíveis de atendimento', 'Sala de consulta equipada', 'Certificado de horas voluntárias'].map((item, i) => (
+
+          <ul className="space-y-4 mb-10">
+            {beneficios.map((item, i) => (
               <li key={i} className="flex items-center gap-3 text-teal-50">
-                <CheckCircle className="text-teal-400" size={20} /> {item}
+                <CheckCircle className="text-teal-400 shrink-0" size={20} /> {item}
               </li>
             ))}
           </ul>
+
+          {/* TOGGLE */}
+          <div className="inline-flex bg-teal-800/60 border border-teal-700 rounded-full p-1 gap-1">
+            <button
+              onClick={() => { setTab('casa'); setStatus('idle'); setErrors({}); }}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                tab === 'casa'
+                  ? 'bg-teal-500 text-white shadow'
+                  : 'text-teal-300 hover:text-white'
+              }`}
+            >
+              Voluntário da Casa
+            </button>
+            <button
+              onClick={() => { setTab('dentista'); setStatus('idle'); setErrors({}); }}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                tab === 'dentista'
+                  ? 'bg-teal-500 text-white shadow'
+                  : 'text-teal-300 hover:text-white'
+              }`}
+            >
+              Dentista Voluntário
+            </button>
+          </div>
         </div>
 
+        {/* LADO DIREITO — CARD CONDICIONAL */}
         <div className="bg-white rounded-3xl p-8 shadow-2xl text-slate-800">
-          <h3 className="text-2xl font-bold mb-6 text-center">Cadastro de Dentistas</h3>
 
-          {status === 'success' ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle size={40} />
-              </div>
-              <h4 className="text-xl font-bold text-slate-800 mb-2">Inscrição Recebida!</h4>
-              <p className="text-slate-600">Agradecemos seu interesse. Entraremos em contato.</p>
-              <button onClick={() => setStatus('idle')} className="mt-6 text-teal-600 font-semibold">Enviar outro formulário</button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-slate-700">Nome Completo</label>
-                  <input type="text" value={formData.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })} className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.name ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`} placeholder="Dr. João Silva" />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-slate-700">Telefone</label>
-                  <input type="text" value={formData.phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="(11) 90000-0000" />
-                </div>
-              </div>
+          {/* ABA: VOLUNTÁRIO DA CASA */}
+          {tab === 'casa' && (
+            <>
+              <h3 className="text-2xl font-bold mb-6 text-center text-slate-800">Cadastro de Voluntário</h3>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-slate-700">E-mail Profissional</label>
-                  <input type="email" value={formData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })} className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`} placeholder="joao@email.com" />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              {status === 'success' ? (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle size={40} />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-800 mb-2">Inscrição Recebida!</h4>
+                  <p className="text-slate-600">Agradecemos seu interesse. Entraremos em contato em breve.</p>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="mt-6 text-teal-600 font-semibold hover:underline"
+                  >
+                    Enviar outro formulário
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1 text-slate-700">CRO (Registro)</label>
-                  <input type="text" value={formData.cro} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, cro: e.target.value })} className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.cro ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`} placeholder="SP-12345" />
-                  {errors.cro && <p className="text-red-500 text-xs mt-1">{errors.cro}</p>}
-                </div>
-              </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
 
-              <div>
-                <label className="block text-sm font-medium mb-2 text-slate-700">Upload de Currículo (PDF/DOCX)</label>
-                <div
-                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${file ? 'border-teal-500 bg-teal-50' : (errors.file ? 'border-red-400 bg-red-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100')}`}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.doc,.docx" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0] || null)} />
-                  {file ? (
-                    <div className="flex flex-col items-center">
-                      <FileText className="text-teal-600 mb-2" size={28} />
-                      <p className="text-sm font-medium text-teal-800">{file.name}</p>
+                  {/* Nome */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-slate-700">Nome Completo:</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.name ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      placeholder="ex. José da Silva"
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-slate-700">e-mail:</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      placeholder="jose_silva@gmail.com"
+                    />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  </div>
+
+                  {/* Telefone */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-slate-700">Telefone:</label>
+                    <input
+                      type="text"
+                      value={formData.phone}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
+                      className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      placeholder="(11) 91234-5678"
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  </div>
+
+                  {/* Currículo (opcional) */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-slate-700">
+                      Anexar currículo (PDF):{' '}
+                      <span className="text-slate-400 font-normal">(opcional)</span>
+                    </label>
+                    <div
+                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
+                        file
+                          ? 'border-teal-500 bg-teal-50'
+                          : 'border-slate-300 bg-slate-50 hover:bg-slate-100'
+                      }`}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0] || null)}
+                      />
+                      {file ? (
+                        <div className="flex flex-col items-center">
+                          <FileText className="text-teal-600 mb-1" size={24} />
+                          <p className="text-sm font-medium text-teal-800">{file.name}</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <Upload className="text-slate-400 mb-1" size={24} />
+                          <p className="text-sm text-slate-500">clique para selecionar ou arraste seu arquivo</p>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <Upload className="text-slate-400 mb-2" size={28} />
-                      <p className="text-sm text-slate-600 font-medium">Clique para selecionar ou arraste o arquivo</p>
+                  </div>
+
+                  {status === 'error' && (
+                    <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl flex items-center gap-2">
+                      <AlertCircle size={16} /> Erro ao enviar. Verifique o servidor e tente novamente.
                     </div>
                   )}
-                </div>
-              </div>
 
-              <button type="submit" disabled={status === 'loading'} className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition-all shadow-lg flex justify-center items-center gap-2">
-                {status === 'loading' ? 'Enviando...' : <>Finalizar Inscrição <ArrowRight size={20} /></>}
-              </button>
-            </form>
+                  <button
+                    type="submit"
+                    disabled={status === 'loading'}
+                    className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {status === 'loading' ? 'Enviando...' : <>Finalizar <ArrowRight size={20} /></>}
+                  </button>
+                </form>
+              )}
+            </>
           )}
+
+          {/* ABA: DENTISTA VOLUNTÁRIO */}
+          {tab === 'dentista' && (
+            <div className="flex flex-col items-center justify-center text-center py-8 gap-6">
+              <div className="w-16 h-16 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center">
+                <Stethoscope size={32} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800">Faça parte da equipe</h3>
+              <p className="text-teal-600 font-medium text-sm leading-relaxed">
+                Cadastre-se no nosso site principal através do botão abaixo
+              </p>
+              <a
+                href="https://odonto-nenz.onrender.com/Voluntario/Cadastro"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-700 transition-all shadow-lg flex justify-center items-center gap-2 text-lg"
+              >
+                Cadastrar-se <ArrowRight size={22} />
+              </a>
+            </div>
+          )}
+
         </div>
       </div>
     </section>
@@ -524,7 +620,6 @@ function DonationSection() {
         </p>
 
         <div className="bg-white p-10 rounded-3xl shadow-lg border border-teal-100 inline-block w-full max-w-lg relative overflow-hidden">
-          {/* Decoração sutil de fundo */}
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-teal-50 rounded-full opaque-50"></div>
 
           <h3 className="text-xl font-bold mb-1 text-slate-800 relative z-10">Chave PIX (Celular)</h3>
@@ -544,7 +639,6 @@ function DonationSection() {
             </button>
           </div>
 
-          {/* ÁREA DO QR CODE COM A IMAGEM */}
           <div className="relative z-10 bg-white p-4 rounded-2xl shadow-inner border border-slate-100 inline-block mb-4">
             <img
               src="/qr-code-pix.png"
@@ -614,6 +708,11 @@ function LocationSection() {
   );
 }
 
+
+// ============================================================
+// CHATBOT WIDGET
+// ============================================================
+
 function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
@@ -623,7 +722,6 @@ function ChatbotWidget() {
   const [isTyping, setIsTyping] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-  // Efeito para rolar o chat para baixo sempre que houver nova mensagem ou digitação
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
@@ -632,23 +730,14 @@ function ChatbotWidget() {
     if (!input.trim() || isTyping) return;
 
     const userText = input.trim();
-    
-    // 1. Adiciona a mensagem do usuário imediatamente na tela
     const newUserMessage = { role: 'user' as const, text: userText };
     setMessages(prev => [...prev, newUserMessage]);
-    
-    // 2. Limpa o input e mostra o estado de "digitando"
     setInput('');
     setIsTyping(true);
 
     try {
-      // 3. Prepara o contexto (as últimas 4 mensagens para a IA não se perder)
-      const context = messages.slice(-4); 
-
-      // 4. Chama a função da API 
+      const context = messages.slice(-4);
       const aiResponse = await generateAIResponse(userText, context);
-
-      // 5. Adiciona a resposta da IA na tela
       setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
     } catch (error) {
       console.error("Erro ao processar chat:", error);
@@ -660,18 +749,15 @@ function ChatbotWidget() {
 
   return (
     <>
-      {/* Botão Flutuante (Bolinha) */}
-      <button 
-        onClick={() => setIsOpen(true)} 
+      <button
+        onClick={() => setIsOpen(true)}
         className={`fixed bottom-6 right-6 w-16 h-16 bg-teal-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-teal-700 transition-all duration-300 z-40 ${isOpen ? 'scale-0' : 'scale-100 hover:rotate-12'}`}
       >
         <MessageCircle size={32} />
       </button>
 
-      {/* Janela do Chat */}
       <div className={`fixed bottom-6 right-6 w-[350px] sm:w-[400px] max-h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
-        
-        {/* Cabeçalho */}
+
         <div className="bg-teal-600 p-4 flex items-center justify-between text-white shadow-md">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -684,28 +770,24 @@ function ChatbotWidget() {
               </span>
             </div>
           </div>
-          <button 
-            onClick={() => setIsOpen(false)} 
-            className="hover:bg-teal-700 p-2 rounded-lg transition-colors"
-          >
+          <button onClick={() => setIsOpen(false)} className="hover:bg-teal-700 p-2 rounded-lg transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        {/* Área de Mensagens */}
         <div className="flex-1 h-80 overflow-y-auto p-4 bg-slate-50 space-y-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                msg.role === 'user' 
-                  ? 'bg-teal-600 text-white rounded-br-none' 
+                msg.role === 'user'
+                  ? 'bg-teal-600 text-white rounded-br-none'
                   : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none'
               }`}>
                 {msg.text}
               </div>
             </div>
           ))}
-          
+
           {isTyping && (
             <div className="flex justify-start">
               <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-bl-none shadow-sm">
@@ -720,20 +802,19 @@ function ChatbotWidget() {
           <div ref={endOfMessagesRef} />
         </div>
 
-        {/* Rodapé / Input */}
         <div className="p-4 bg-white border-t border-slate-100">
           <div className="flex gap-2">
-            <input 
-              type="text" 
-              value={input} 
-              onChange={(e) => setInput(e.target.value)} 
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()} 
-              placeholder="Pergunte sobre horários, doações..." 
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Pergunte sobre horários, doações..."
               className="flex-1 px-4 py-2.5 bg-slate-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 border-none"
             />
-            <button 
-              onClick={handleSend} 
-              disabled={!input.trim() || isTyping} 
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || isTyping}
               className="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center hover:bg-teal-700 disabled:opacity-50 disabled:grayscale transition-all shadow-md"
             >
               <Send size={18} className="ml-0.5" />
@@ -747,6 +828,11 @@ function ChatbotWidget() {
     </>
   );
 }
+
+
+// ============================================================
+// MODAL DE AUTENTICAÇÃO
+// ============================================================
 
 function AuthModal({ onClose, onSuccess }: AuthModalProps) {
   const [email, setEmail] = useState('');
@@ -776,17 +862,39 @@ function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           <div className="w-16 h-16 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6"><Lock size={32} /></div>
           <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">Acesso Restrito</h2>
           <p className="text-center text-slate-500 text-sm mb-8">Gestão do Projeto PI Odonto</p>
-          {error && <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl flex items-center gap-2"><AlertCircle size={16} /> {error}</div>}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl flex items-center gap-2">
+              <AlertCircle size={16} /> {error}
+            </div>
+          )}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1 text-slate-700">E-mail</label>
-              <input type="email" value={email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} required className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="admin@piodonto.org" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                required
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="admin@piodonto.org"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-slate-700">Senha</label>
-              <input type="password" value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} required className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="••••••••" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                required
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="••••••••"
+              />
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 mt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 mt-4 disabled:opacity-60"
+            >
               {loading ? 'Autenticando...' : 'Entrar no Sistema'}
             </button>
           </form>
@@ -795,6 +903,11 @@ function AuthModal({ onClose, onSuccess }: AuthModalProps) {
     </div>
   );
 }
+
+
+// ============================================================
+// DASHBOARD
+// ============================================================
 
 function Dashboard({ user }: DashboardProps) {
   const handleDownloadRelatorio = () => {
@@ -817,7 +930,10 @@ function Dashboard({ user }: DashboardProps) {
           <h2 className="text-3xl font-bold text-slate-800">Painel de Controle</h2>
           <p className="text-slate-500">Bem-vindo(a), {user?.name}. Aqui estão os dados em tempo real.</p>
         </div>
-        <button onClick={handleDownloadRelatorio} className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2">
+        <button
+          onClick={handleDownloadRelatorio}
+          className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2"
+        >
           <Download size={18} /> Baixar Relatório (CSV)
         </button>
       </div>
@@ -847,8 +963,14 @@ function Dashboard({ user }: DashboardProps) {
               <tr className="border-b border-slate-50 hover:bg-slate-50">
                 <td className="p-4 font-medium text-slate-800">Dra. Amanda Costa</td>
                 <td className="p-4 text-slate-600">SP-98765</td>
-                <td className="p-4"><span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">Em Análise</span></td>
-                <td className="p-4"><button className="text-teal-600 hover:underline flex items-center gap-1"><FileText size={16} /> Baixar PDF</button></td>
+                <td className="p-4">
+                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-bold">Em Análise</span>
+                </td>
+                <td className="p-4">
+                  <button className="text-teal-600 hover:underline flex items-center gap-1">
+                    <FileText size={16} /> Baixar PDF
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -857,6 +979,11 @@ function Dashboard({ user }: DashboardProps) {
     </div>
   );
 }
+
+
+// ============================================================
+// KPI CARD
+// ============================================================
 
 function KpiCard({ title, value, sub, icon: Icon, color }: KpiCardProps) {
   return (

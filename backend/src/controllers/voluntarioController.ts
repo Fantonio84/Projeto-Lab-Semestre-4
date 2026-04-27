@@ -1,14 +1,13 @@
 import { Request, Response } from 'express';
-import Voluntario from '../models/Voluntario'; // Puxa o "molde" do banco de dados
+import Voluntario from '../models/Voluntario';
 
-// Função para SALVAR um novo voluntário (Vem do formulário do site)
 export const criar = async (req: Request, res: Response) => {
   try {
     const novoVoluntario = new Voluntario(req.body);
     await novoVoluntario.save();
     res.status(201).json({ 
-        mensagem: 'Voluntário cadastrado com sucesso!', 
-        voluntario: novoVoluntario 
+      mensagem: 'Voluntário cadastrado com sucesso!', 
+      voluntario: novoVoluntario 
     });
   } catch (error) {
     console.error("Erro ao criar voluntário:", error);
@@ -16,7 +15,6 @@ export const criar = async (req: Request, res: Response) => {
   }
 };
 
-// Função para LISTAR todos os voluntários (Para aparecer na Área Restrita)
 export const listar = async (req: Request, res: Response) => {
   try {
     const voluntarios = await Voluntario.find();
