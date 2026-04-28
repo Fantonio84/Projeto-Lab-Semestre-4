@@ -1,8 +1,7 @@
 import app from './app';
 import { conectarMongo } from './config/mongo'; 
 
-const PORT = 5001; // Alterado de 5000 para 5001
-
+const PORT = 3001; 
 conectarMongo().then(() => {
   app.listen(PORT, () => {
     console.log(`✅ MongoDB conectado com sucesso!`);
