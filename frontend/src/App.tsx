@@ -161,6 +161,7 @@ export default function App() {
         <main>
           <HeroSection />
           <FeaturesSection />
+          <ImpactStats />
           <VolunteerSection />
           <DonationSection />
           <LocationSection />
@@ -361,6 +362,52 @@ function FeaturesSection() {
   );
 }
 
+function ImpactStats() {
+  // Inicializamos com 0 para não dar erro de undefined
+  var [stats, setStats] = useState({ atendimentos: 0, dentistas: 0, criancas: 0 });
+
+  useEffect(() => {
+  fetch('http://localhost:3001/api/estatisticas')
+    .then(res => res.json())
+    .then(data => {
+      console.log("Dados que chegaram no Front:", data); // Olhe o F12 para ver isso!
+      setStats({
+        atendimentos: Number(data.atendimentos) || 0,
+        dentistas: Number(data.dentistas) || 0,
+        criancas: Number(data.criancas) || 0
+      });
+    })
+    .catch(err => console.error('Erro ao conectar com o back:', err));
+}, []);
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-4 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-16">
+          Já contamos com:
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {/* Exibição dos dados puxados do Back */}
+          <div className="flex flex-col items-center">
+            <span className="text-8xl font-black text-teal-500 mb-4">{stats.dentistas}</span>
+            <span className="text-3xl font-bold text-slate-700">Dentistas</span>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <span className="text-8xl font-black text-teal-500 mb-4">{stats.criancas}</span>
+            <span className="text-3xl font-bold text-slate-700">Crianças</span>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <span className="text-8xl font-black text-teal-500 mb-4">{stats.atendimentos}</span>
+            <span className="text-3xl font-bold text-slate-700">Atendimentos</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 // ============================================================
 // SEÇÃO DE VOLUNTÁRIOS — COM TOGGLE (ALTERADO)
 // ============================================================

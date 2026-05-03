@@ -1,20 +1,22 @@
 import express from 'express';
 import cors from 'cors';
 import voluntarioRoutes from './routes/voluntarioRoutes';
+import estatisticasRoutes from './routes/estatisticaRoutes';
 
 const app = express();
 
-// O CORS vazio permite qualquer origem, ideal para resolver o erro de trava local
+// Middlewares PRIMEIRO
 app.use(cors());
 app.use(express.json());
 
-// Log para você ver as requisições chegando no terminal
+// Log
 app.use((req, res, next) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Rotas
+// Rotas POR ÚLTIMO
+app.use('/api/estatisticas', estatisticasRoutes);
 app.use('/api/voluntarios', voluntarioRoutes);
 
 export default app;
