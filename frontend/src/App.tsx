@@ -412,9 +412,17 @@ function ImpactStats() {
 // SEÇÃO DE VOLUNTÁRIOS — COM TOGGLE (ALTERADO)
 // ============================================================
 
+// Substitua sua função VolunteerSection por esta versão:
+
 function VolunteerSection() {
   const [tab, setTab] = useState<'casa' | 'dentista'>('casa');
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
+  // 1. Estado atualizado para incluir a estrutura do currículo
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    email: '', 
+    phone: '',
+    curriculo: { dados: '', tipo: '', nomeArquivo: '' } 
+  });
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -429,6 +437,33 @@ function VolunteerSection() {
     return Object.keys(newErrs).length === 0;
   };
 
+  // 2. Função para capturar o arquivo e converter em Base64
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      // Validação de tamanho (ex: max 2MB)
+      if (selectedFile.size > 2 * 1024 * 1024) {
+        alert("O arquivo é muito grande. Máximo de 2MB.");
+        return;
+      }
+
+      setFile(selectedFile); // Para exibição visual no card
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          curriculo: {
+            dados: reader.result as string, // String Base64 do PDF/Doc
+            tipo: selectedFile.type,
+            nomeArquivo: selectedFile.name
+          }
+        }));
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
@@ -438,16 +473,21 @@ function VolunteerSection() {
       const response = await fetch('http://localhost:3001/api/voluntarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // 3. Enviando o objeto completo com o currículo incluso
         body: JSON.stringify({
           nome: formData.name,
           telefone: formData.phone,
           email: formData.email,
+          curriculo: formData.curriculo.dados ? formData.curriculo : undefined
         })
       });
 
       if (response.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', phone: '' });
+        setFormData({ 
+          name: '', email: '', phone: '', 
+          curriculo: { dados: '', tipo: '', nomeArquivo: '' } 
+        });
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
@@ -512,10 +552,9 @@ function VolunteerSection() {
           </div>
         </div>
 
-        {/* LADO DIREITO — CARD CONDICIONAL */}
+        {/* LADO DIREITO — CARD DE CADASTRO */}
         <div className="bg-white rounded-3xl p-8 shadow-2xl text-slate-800">
 
-          {/* ABA: VOLUNTÁRIO DA CASA */}
           {tab === 'casa' && (
             <>
               <h3 className="text-2xl font-bold mb-6 text-center text-slate-800">Cadastro de Voluntário</h3>
@@ -536,8 +575,6 @@ function VolunteerSection() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-
-                  {/* Nome */}
                   <div>
                     <label className="block text-sm font-medium mb-1 text-slate-700">Nome Completo:</label>
                     <input
@@ -550,7 +587,6 @@ function VolunteerSection() {
                     {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                   </div>
 
-                  {/* Email */}
                   <div>
                     <label className="block text-sm font-medium mb-1 text-slate-700">e-mail:</label>
                     <input
@@ -563,7 +599,6 @@ function VolunteerSection() {
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
 
-                  {/* Telefone */}
                   <div>
                     <label className="block text-sm font-medium mb-1 text-slate-700">Telefone:</label>
                     <input
@@ -576,7 +611,7 @@ function VolunteerSection() {
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
 
-                  {/* Currículo (opcional) */}
+                  {/* Campo de Currículo Ajustado */}
                   <div>
                     <label className="block text-sm font-medium mb-2 text-slate-700">
                       Anexar currículo (PDF):{' '}
@@ -595,7 +630,7 @@ function VolunteerSection() {
                         ref={fileInputRef}
                         className="hidden"
                         accept=".pdf,.doc,.docx"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFile(e.target.files?.[0] || null)}
+                        onChange={handleFileChange} 
                       />
                       {file ? (
                         <div className="flex flex-col items-center">
@@ -649,7 +684,6 @@ function VolunteerSection() {
               </a>
             </div>
           )}
-
         </div>
       </div>
     </section>

@@ -5,7 +5,12 @@ export interface IVoluntario extends Document {
   nome: string;
   telefone: string;
   email: string;
-  cro: string;
+  curriculo?: {
+    dados: string; // String Base64 do arquivo
+    tipo: string;  // ex: 'application/pdf'
+    nomeArquivo: string;
+  };
+  
 }
 
 // 2. O Schema: Ensina o MongoDB como criar a tabela no banco de dados
@@ -23,10 +28,11 @@ const VoluntarioSchema: Schema = new Schema(
       type: String, 
       required: true 
     },
-    cro: { 
-    type: String, 
-    required: false 
-}
+   curriculo: {
+      dados: String,
+      tipo: String,
+      nomeArquivo: String
+    }
   },
   {
     // Isso cria automaticamente os campos de "Data de Criação" e "Data de Atualização"
