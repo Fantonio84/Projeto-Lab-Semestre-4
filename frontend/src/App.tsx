@@ -599,18 +599,37 @@ function VolunteerSection() {
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1 text-slate-700">Telefone:</label>
-                    <input
-                      type="text"
-                      value={formData.phone}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
-                      className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`}
-                      placeholder="(11) 91234-5678"
-                    />
-                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-                  </div>
+{/* Telefone */}
+<div>
+  <label className="block text-sm font-medium mb-1 text-slate-700">Telefone:</label>
+  <input
+    type="text"
+    value={formData.phone}
+    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+      // 1. Pega apenas os números digitados
+      const apenasNumeros = e.target.value.replace(/\D/g, '');
 
+      // 2. Bloqueia se for maior que 11 dígitos
+      if (apenasNumeros.length <= 11) {
+        // 3. Aplica a máscara visual (opcional, mas recomendado)
+        let valorComMascara = apenasNumeros;
+        if (apenasNumeros.length > 2) {
+          valorComMascara = `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2)}`;
+        }
+        if (apenasNumeros.length > 7) {
+          valorComMascara = `(${apenasNumeros.slice(0, 2)}) ${apenasNumeros.slice(2, 7)}-${apenasNumeros.slice(7)}`;
+        }
+
+        setFormData({ ...formData, phone: valorComMascara });
+      }
+    }}
+    className={`w-full p-3 rounded-xl bg-slate-50 border ${errors.phone ? 'border-red-400' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-teal-500`}
+    placeholder="(11) 91234-5678"
+    maxLength={15} // Limite de caracteres incluindo os símbolos ( (11) 91234-5678 )
+  />
+  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+</div>
+                  
                   {/* Campo de Currículo Ajustado */}
                   <div>
                     <label className="block text-sm font-medium mb-2 text-slate-700">
