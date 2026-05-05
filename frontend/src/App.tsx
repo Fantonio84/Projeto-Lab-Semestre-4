@@ -465,39 +465,49 @@ function VolunteerSection() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!validate()) return;
-    setStatus('loading');
+  e.preventDefault();
+  if (!validate()) return;
 
-    try {
-      const response = await fetch('http://localhost:3001/api/voluntarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // 3. Enviando o objeto completo com o currículo incluso
-        body: JSON.stringify({
-          nome: formData.name,
-          telefone: formData.phone,
-          email: formData.email,
-          curriculo: formData.curriculo.dados ? formData.curriculo : undefined
-        })
+  setStatus('loading');
+  setErrors({}); // limpa erros anteriores
+
+  try {
+    const response = await fetch('http://localhost:3001/api/voluntarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: formData.name,
+        telefone: formData.phone,
+        email: formData.email,
+        curriculo: formData.curriculo.dados ? formData.curriculo : undefined
+      })
+    });
+
+    
+    const data = await response.json();
+
+
+    if (response.ok) {
+      setStatus('success');
+      setFormData({ 
+        name: '', 
+        email: '', 
+        phone: '', 
+        curriculo: { dados: '', tipo: '', nomeArquivo: '' } 
       });
-
-      if (response.ok) {
-        setStatus('success');
-        setFormData({ 
-          name: '', email: '', phone: '', 
-          curriculo: { dados: '', tipo: '', nomeArquivo: '' } 
-        });
-        setFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      } else {
-        setStatus('error');
-      }
-    } catch (error) {
-      console.error("Erro na comunicação com o backend:", error);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } else {
       setStatus('error');
+      setErrors({ global: data.erro || 'Erro ao enviar.' });
     }
-  };
+
+  } catch (error) {
+    console.error("Erro na comunicação com o backend:", error);
+    setStatus('error');
+    setErrors({ global: 'Erro de conexão com o servidor.' });
+  }
+};
 
   const beneficiosCasa = ['Horários flexíveis', 'Proatividade', 'Amor ao próximo'];
   const beneficiosDentista = ['Horários flexíveis de atendimento', 'Sala de consulta equipada', 'Certificado de horas voluntárias'];
@@ -667,7 +677,7 @@ function VolunteerSection() {
 
                   {status === 'error' && (
                     <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl flex items-center gap-2">
-                      <AlertCircle size={16} /> Erro ao enviar. Verifique o servidor e tente novamente.
+                      <AlertCircle size={16} /> {errors.global || 'Erro ao enviar.'}
                     </div>
                   )}
 

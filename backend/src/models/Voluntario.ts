@@ -26,7 +26,8 @@ const VoluntarioSchema: Schema = new Schema(
     },
     email: { 
       type: String, 
-      required: true 
+      required: true,
+      unique: true 
     },
    curriculo: {
       dados: String,
