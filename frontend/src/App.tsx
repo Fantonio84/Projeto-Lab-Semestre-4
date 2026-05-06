@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  MapPin, Heart, Upload, FileText, Send, X, MessageCircle,
+  MapPin, Heart, Upload, FileText, X,
   User as UserIcon, Lock, Download, Activity, Users, DollarSign, Calendar,
-  Navigation, CheckCircle, AlertCircle, Bot, ArrowRight,
+  Navigation, CheckCircle, AlertCircle, ArrowRight,
   LogOut, Shield, ChevronRight, Stethoscope
 } from 'lucide-react';
+import { WhatsAppButton } from './components/WhatsAppButton'
 
 
 // ============================================================
@@ -42,69 +43,6 @@ interface KpiCardProps {
   icon: React.ElementType;
   color: string;
 }
-
-
-// ============================================================
-// CONFIGURAÇÕES E IA (GEMINI API)
-// ============================================================
-
-const apiKey = "AIzaSyAn4XQON7UUYazBhbZv6i1Off2TIYC0S8s";
-
-const generateAIResponse = async (prompt: string, history: { role: 'user' | 'ai', text: string }[]) => {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-  const contents = history.map(msg => ({
-    role: msg.role === 'ai' ? 'model' : 'user',
-    parts: [{ text: msg.text }]
-  }));
-
-  contents.push({
-    role: 'user',
-    parts: [{ text: `Instrução: Você é o assistente do Projeto PI Odonto em Atibaia. Responda de forma curta e amigável. Pergunta: ${prompt}` }]
-  });
-
-  const payload = {
-    contents: contents,
-    safetySettings: [
-      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
-      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" }
-    ],
-    generationConfig: {
-      maxOutputTokens: 300,
-      temperature: 0.7,
-    }
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Erro detalhado da API:", data);
-      return `Erro (${response.status}): Não consegui acessar a inteligência agora.`;
-    }
-
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-      return data.candidates[0].content.parts[0].text;
-    }
-
-    if (data.candidates?.[0]?.finishReason === "SAFETY") {
-      return "Desculpe, não posso responder a isso por motivos de segurança.";
-    }
-
-    return "Entendi a pergunta, mas tive um problema ao gerar a resposta. Pode tentar de novo?";
-
-  } catch (err) {
-    console.error("Erro de conexão:", err);
-    return "Estou com dificuldades de conexão. Verifique sua internet.";
-  }
-};
-
 
 // ============================================================
 // ÍCONE CUSTOMIZADO: DENTE
@@ -165,7 +103,6 @@ export default function App() {
           <VolunteerSection />
           <DonationSection />
           <LocationSection />
-          <ChatbotWidget />
         </main>
       ) : (
         <Dashboard user={user} />
@@ -183,6 +120,12 @@ export default function App() {
           }}
         />
       )}
+
+      <WhatsAppButton
+        phoneNumber="5511925284060" // Número reservado para este projeto
+        message="Olá! Gostaria de falar com a equipe de Odonto."
+      />
+
     </div>
   );
 }
@@ -364,7 +307,7 @@ function FeaturesSection() {
 
 function ImpactStats() {
   // Inicializamos com 0 para não dar erro de undefined
-  var [stats, setStats] = useState({ atendimentos: 0, dentistas: 0, criancas: 0 });
+  const [stats, setStats] = useState({ atendimentos: 0, dentistas: 0, criancas: 0 });
 
   useEffect(() => {
   fetch('http://localhost:3001/api/estatisticas')
@@ -408,11 +351,6 @@ function ImpactStats() {
     </section>
   );
 }
-// ============================================================
-// SEÇÃO DE VOLUNTÁRIOS — COM TOGGLE (ALTERADO)
-// ============================================================
-
-// Substitua sua função VolunteerSection por esta versão:
 
 function VolunteerSection() {
   const [tab, setTab] = useState<'casa' | 'dentista'>('casa');
@@ -483,9 +421,7 @@ function VolunteerSection() {
       })
     });
 
-    
     const data = await response.json();
-
 
     if (response.ok) {
       setStatus('success');
@@ -818,128 +754,6 @@ function LocationSection() {
   );
 }
 
-
-// ============================================================
-// CHATBOT WIDGET
-// ============================================================
-
-function ChatbotWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([
-    { role: 'ai', text: 'Olá! Sou o assistente virtual do Odonto. Como posso te ajudar hoje?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const endOfMessagesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
-
-    const userText = input.trim();
-    const newUserMessage = { role: 'user' as const, text: userText };
-    setMessages(prev => [...prev, newUserMessage]);
-    setInput('');
-    setIsTyping(true);
-
-    try {
-      const context = messages.slice(-4);
-      const aiResponse = await generateAIResponse(userText, context);
-      setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
-    } catch (error) {
-      console.error("Erro ao processar chat:", error);
-      setMessages(prev => [...prev, { role: 'ai', text: "Desculpe, tive um erro técnico. Pode tentar novamente?" }]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  return (
-    <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-16 h-16 bg-teal-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-teal-700 transition-all duration-300 z-40 ${isOpen ? 'scale-0' : 'scale-100 hover:rotate-12'}`}
-      >
-        <MessageCircle size={32} />
-      </button>
-
-      <div className={`fixed bottom-6 right-6 w-[350px] sm:w-[400px] max-h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}>
-
-        <div className="bg-teal-600 p-4 flex items-center justify-between text-white shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Bot size={24} />
-            </div>
-            <div>
-              <span className="font-bold block text-sm">Assistente PI Odonto</span>
-              <span className="text-[10px] text-teal-100 flex items-center gap-1">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Online agora
-              </span>
-            </div>
-          </div>
-          <button onClick={() => setIsOpen(false)} className="hover:bg-teal-700 p-2 rounded-lg transition-colors">
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 h-80 overflow-y-auto p-4 bg-slate-50 space-y-4">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                msg.role === 'user'
-                  ? 'bg-teal-600 text-white rounded-br-none'
-                  : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none'
-              }`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-bl-none shadow-sm">
-                <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={endOfMessagesRef} />
-        </div>
-
-        <div className="p-4 bg-white border-t border-slate-100">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Pergunte sobre horários, doações..."
-              className="flex-1 px-4 py-2.5 bg-slate-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 border-none"
-            />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || isTyping}
-              className="w-10 h-10 bg-teal-600 text-white rounded-full flex items-center justify-center hover:bg-teal-700 disabled:opacity-50 disabled:grayscale transition-all shadow-md"
-            >
-              <Send size={18} className="ml-0.5" />
-            </button>
-          </div>
-          <p className="text-[10px] text-center text-slate-400 mt-2">
-            IA treinada para o Projeto PI Odonto Atibaia
-          </p>
-        </div>
-      </div>
-    </>
-  );
-}
-
-
 // ============================================================
 // MODAL DE AUTENTICAÇÃO
 // ============================================================
@@ -1089,7 +903,6 @@ function Dashboard({ user }: DashboardProps) {
     </div>
   );
 }
-
 
 // ============================================================
 // KPI CARD
